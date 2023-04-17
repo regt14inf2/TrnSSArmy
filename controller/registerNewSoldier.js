@@ -46,3 +46,24 @@ exports.submitRegNewSoldier = (req, res, next) => {
     return error;
   }
 };
+
+exports.updateSoldier = (req, res, next) => {
+  try {
+    let result = register.updateSoldier(req.body);
+    result.then((result) => {
+      if (result == true) {
+        res.status(200).json({
+          status: "success",
+          // data: result,
+        });
+      } else {
+        res.status(400).json({
+          status: "error",
+          data: result,
+        });
+      }
+    });
+  } catch (error) {
+    return error;
+  }
+};

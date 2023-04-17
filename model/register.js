@@ -65,6 +65,7 @@ const registerSoldier = async (dat) => {
 const submitSoldier = async (dat) => {
   const uid = new ShortUniqueId({ length: 10 });
   const personalId = uid();
+  
   const personal_info = [
     {
       PERSOANL_ID: personalId,
@@ -80,13 +81,15 @@ const submitSoldier = async (dat) => {
       FACEBOOK: dat.fecebook,
       TWITTER: dat.twitter,
       LIVE_WITH: dat.live_with,
+      ID_CARD: dat.idcard ? dat.idcard : dat.idCard,
       // PHONE_NUMBER_P:,
       CREATE_USER: dat.create_user,
       MODIFY_USER: dat.create_user,
       CREATE_DATE: new Date().toISOString(),
       MODIFY_DATE: new Date().toISOString(),
     }
-  ]
+  ];
+
   const family_info = [
     {
       PERSONAL_ID: personalId,
@@ -120,7 +123,8 @@ const submitSoldier = async (dat) => {
       CREATE_DATE: new Date().toISOString(),
       MODIFY_DATE: new Date().toISOString(),
     }
-  ]
+  ];
+
   const education_info = [
     {
       PERSONAL_ID: personalId,
@@ -133,7 +137,7 @@ const submitSoldier = async (dat) => {
       CREATE_DATE: new Date().toISOString(),
       MODIFY_DATE: new Date().toISOString(),
     }
-  ]
+  ];
 
   const medical_info = [
     {
@@ -161,7 +165,8 @@ const submitSoldier = async (dat) => {
       CREATE_DATE: new Date().toISOString(),
       MODIFY_DATE: new Date().toISOString(),
     }
-  ]
+  ];
+
   const hire_info = [];
 
   if (dat.familyForm.length > 0) {
@@ -176,6 +181,7 @@ const submitSoldier = async (dat) => {
       });
     });
   }
+  
   const address_info = [
     {
       PERSONAL_ID: personalId,
@@ -185,7 +191,7 @@ const submitSoldier = async (dat) => {
       ADDRESS3: dat.P_soi,
       ADDRESS4: dat.P_road,
       PROVINCE: dat.P_province,
-      DISTRICT: dat.P_disrict,
+      DISTRICT: dat.P_district,
       SUBDISTRICT: dat.P_subDistrict,
       ZIPCODE: dat.P_zipcode,
       CREATE_USER: dat.create_user,
@@ -201,7 +207,7 @@ const submitSoldier = async (dat) => {
       ADDRESS3: dat.O_soi,
       ADDRESS4: dat.O_road,
       PROVINCE: dat.O_province,
-      DISTRICT: dat.O_disrict,
+      DISTRICT: dat.O_district,
       SUBDISTRICT: dat.O_subDistrict,
       ZIPCODE: dat.O_zipcode,
       CREATE_USER: dat.create_user,
@@ -217,7 +223,7 @@ const submitSoldier = async (dat) => {
       ADDRESS3: dat.F_soi,
       ADDRESS4: dat.F_road,
       PROVINCE: dat.F_province,
-      DISTRICT: dat.F_disrict,
+      DISTRICT: dat.F_district,
       SUBDISTRICT: dat.F_subDistrict,
       ZIPCODE: dat.F_zipcode,
       CREATE_USER: dat.create_user,
@@ -233,7 +239,7 @@ const submitSoldier = async (dat) => {
       ADDRESS3: dat.M_soi,
       ADDRESS4: dat.M_road,
       PROVINCE: dat.M_province,
-      DISTRICT: dat.M_disrict,
+      DISTRICT: dat.M_district,
       SUBDISTRICT: dat.M_subDistrict,
       ZIPCODE: dat.M_zipcode,
       CREATE_USER: dat.create_user,
@@ -249,7 +255,7 @@ const submitSoldier = async (dat) => {
       ADDRESS3: dat.W_soi,
       ADDRESS4: dat.W_road,
       PROVINCE: dat.W_province,
-      DISTRICT: dat.W_disrict,
+      DISTRICT: dat.W_district,
       SUBDISTRICT: dat.W_subDistrict,
       ZIPCODE: dat.W_zipcode,
       CREATE_USER: dat.create_user,
@@ -265,15 +271,31 @@ const submitSoldier = async (dat) => {
       ADDRESS3: dat.R_soi,
       ADDRESS4: dat.R_road,
       PROVINCE: dat.R_province,
-      DISTRICT: dat.R_disrict,
+      DISTRICT: dat.R_district,
       SUBDISTRICT: dat.R_subDistrict,
       ZIPCODE: dat.R_zipcode,
       CREATE_USER: dat.create_user,
       MODIFY_USER: dat.create_user,
       CREATE_DATE: new Date().toISOString(),
       MODIFY_DATE: new Date().toISOString(),
-    },
+    },{
+      PERSONAL_ID: personalId,
+      TYPEADDRESS: "S",
+      ADDRESS1: dat.S_address,
+      ADDRESS2: dat.S_moo,
+      ADDRESS3: dat.S_soi,
+      ADDRESS4: dat.S_road,
+      PROVINCE: dat.S_province,
+      DISTRICT: dat.S_district,
+      SUBDISTRICT: dat.S_subDistrict,
+      ZIPCODE: dat.S_zipcode,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    }
   ];
+  
   const uniform_info = [
     {
       PERSONAL_ID: personalId,
@@ -289,7 +311,8 @@ const submitSoldier = async (dat) => {
       CREATE_DATE: new Date().toISOString(),
       MODIFY_DATE: new Date().toISOString(),
     }
-  ]
+  ];
+
   let time = [];
   let res = dat.timeline[0];
 
@@ -312,6 +335,7 @@ const submitSoldier = async (dat) => {
       }
     })
   );
+
   const timeline_info = time[0].filter((item, index) => {
     if (item) return item;
   });
@@ -395,6 +419,7 @@ const submitSoldier = async (dat) => {
   const query_personal = `INSERT INTO public."TRN_PERSOANL_INFO" (${_columnInsert(
     personal_info
   )}) VALUES ${_multiInsert(personal_info)}`;
+  const query_personal_name = `UPDATE public."TRN_PERSOANL_NAME" SET "PERSONAL_ID" = '${personalId}', "STATUS" =' A' WHERE "PERSONAL_ID" = '${dat.idcard}'`;
 
   const query = `BEGIN; 
       ${query_personal}; 
@@ -406,10 +431,13 @@ const submitSoldier = async (dat) => {
       ${query_education}; 
       ${query_family}; 
       ${query_medical}; 
+      ${query_personal_name};
       COMMIT;`;
   
   try {
     const {rows} = await pool.query(query);
+    console.log(query_personal);
+    console.log(rows);
     if (rows) {
       return true;
     }else{
@@ -420,4 +448,283 @@ const submitSoldier = async (dat) => {
   }
 };
 
-module.exports = { registerSoldier, submitSoldier };
+const updateSoldier = async (dat) => {
+  const personalId = '57875757';
+  const personal_info = [
+    {
+      PERSOANL_ID: personalId,
+      // RTA_ID:"",
+      // TA_ID:"",
+      // POSITION:"",
+      BLOOD_GRUOP: dat.blood,
+      YEAR: "1/66",
+      NICKNAME: dat.nickname,
+      BRITH_DATE: dat.brithday,
+      YEAR_ENTRY: dat.rta_year,
+      PHONE_NUMBER: dat.mobile,
+      FACEBOOK: dat.fecebook,
+      TWITTER: dat.twitter,
+      LIVE_WITH: dat.live_with,
+      ID_CARD: dat.idcard ? dat.idcard : dat.idCard,
+      // PHONE_NUMBER_P:,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    }
+  ];
+
+  const family_info = [
+    {
+      PERSONAL_ID: personalId,
+      FAMILY_STATUS: dat.family,
+      NAME_M: dat.M_firstname,
+      LASTNAME_M: dat.M_lastname,
+      AGE_M: dat.M_age,
+      CAREER_M: dat.M_career,
+      INCOME_M: dat.M_income,
+      STATUS_PRESENT_M: dat.M_status,
+      NAME_F: dat.F_firstname,
+      LASTNAME_F: dat.F_lastname,
+      AGE_F: dat.F_age,
+      CAREER_F: dat.F_career,
+      INCOME_F: dat.F_income,
+      STATUS_PRESENT_F: dat.F_status,
+      STATUS_C: dat.army_status,
+      NAME_W: dat.W_firstname,
+      LASTNAME_W: dat.W_lastname,
+      AGE_W: dat.W_age,
+      CAREER_W: dat.W_career,
+      INCOME_W: dat.W_income,
+      HEIR: dat.W_child,
+      HEIR_M: dat.W_son,
+      HEIR_W: dat.W_daughter,
+      RELATIONSHIP_R: dat.R_relationship,
+      CONTACT_NAME: dat.R_firstname,
+      CONTACT_LASTNAME: dat.R_lastname,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    }
+  ];
+
+  const education_info = [
+    {
+      PERSONAL_ID: personalId,
+      GRADLEVEL: dat.educationLevel,
+      GRADFROM: dat.S_name,
+      STUDYREQ: dat.educationGenaral,
+      ROYALREQ: dat.educationArmy,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    }
+  ];
+
+  const medical_info = [
+    {
+      PERSONAL_ID: personalId,
+      DISEASE: dat.disease,
+      TREATED: dat.hospitalHistory,
+      D_ALLERGY: dat.drugAllergy,
+      F_ALLERGY: dat.foodAllergy,
+      WEIGHT: dat.weight,
+      HEIGHT: dat.height,
+      BMI: dat.bmi,
+      RESULT: dat.bmiResult,
+      RISK: dat.risk,
+      DRUG: dat.drugUsed,
+      DRUG_TYPE: dat.drugType,
+      DRUGADDICT: dat.drugVUsed,
+      YEAR_USED: dat.drugVUsedTime,
+      REASON_U: dat.reasonUse,
+      ALSOUSED: dat.drugVDisuse,
+      DRUGVTYPE: dat.drugVType,
+      // YEAR_STOPED:dat.,
+      REASON_S: dat.reasonDisuse,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    }
+  ];
+  
+  const address_info = [
+    {
+      PERSONAL_ID: personalId,
+      TYPEADDRESS: "P",
+      ADDRESS1: dat.P_address,
+      ADDRESS2: dat.P_moo,
+      ADDRESS3: dat.P_soi,
+      ADDRESS4: dat.P_road,
+      PROVINCE: dat.P_province,
+      DISTRICT: dat.P_district,
+      SUBDISTRICT: dat.P_subDistrict,
+      ZIPCODE: dat.P_zipcode,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    },
+    {
+      PERSONAL_ID: personalId,
+      TYPEADDRESS: "O",
+      ADDRESS1: dat.O_address,
+      ADDRESS2: dat.O_moo,
+      ADDRESS3: dat.O_soi,
+      ADDRESS4: dat.O_road,
+      PROVINCE: dat.O_province,
+      DISTRICT: dat.O_district,
+      SUBDISTRICT: dat.O_subDistrict,
+      ZIPCODE: dat.O_zipcode,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    },
+    {
+      PERSONAL_ID: personalId,
+      TYPEADDRESS: "F",
+      ADDRESS1: dat.F_address,
+      ADDRESS2: dat.F_moo,
+      ADDRESS3: dat.F_soi,
+      ADDRESS4: dat.F_road,
+      PROVINCE: dat.F_province,
+      DISTRICT: dat.F_district,
+      SUBDISTRICT: dat.F_subDistrict,
+      ZIPCODE: dat.F_zipcode,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    },
+    {
+      PERSONAL_ID: personalId,
+      TYPEADDRESS: "M",
+      ADDRESS1: dat.M_address,
+      ADDRESS2: dat.M_moo,
+      ADDRESS3: dat.M_soi,
+      ADDRESS4: dat.M_road,
+      PROVINCE: dat.M_province,
+      DISTRICT: dat.M_district,
+      SUBDISTRICT: dat.M_subDistrict,
+      ZIPCODE: dat.M_zipcode,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    },
+    {
+      PERSONAL_ID: personalId,
+      TYPEADDRESS: "W",
+      ADDRESS1: dat.W_address,
+      ADDRESS2: dat.W_moo,
+      ADDRESS3: dat.W_soi,
+      ADDRESS4: dat.W_road,
+      PROVINCE: dat.W_province,
+      DISTRICT: dat.W_district,
+      SUBDISTRICT: dat.W_subDistrict,
+      ZIPCODE: dat.W_zipcode,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    },
+    {
+      PERSONAL_ID: personalId,
+      TYPEADDRESS: "R",
+      ADDRESS1: dat.R_address,
+      ADDRESS2: dat.R_moo,
+      ADDRESS3: dat.R_soi,
+      ADDRESS4: dat.R_road,
+      PROVINCE: dat.R_province,
+      DISTRICT: dat.R_district,
+      SUBDISTRICT: dat.R_subDistrict,
+      ZIPCODE: dat.R_zipcode,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    },{
+      PERSONAL_ID: personalId,
+      TYPEADDRESS: "S",
+      ADDRESS1: dat.S_address,
+      ADDRESS2: dat.S_moo,
+      ADDRESS3: dat.S_soi,
+      ADDRESS4: dat.S_road,
+      PROVINCE: dat.S_province,
+      DISTRICT: dat.S_district,
+      SUBDISTRICT: dat.S_subDistrict,
+      ZIPCODE: dat.S_zipcode,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    }
+  ];
+  
+  const uniform_info = [
+    {
+      PERSONAL_ID: personalId,
+      TRAINING_CLOTHES: dat.clothesSize1,
+      VNECK_SHIRT: dat.clothesSize2,
+      NIGHTDRESS: dat.clothesSize3,
+      PANTS: dat.clothesSize4,
+      COMBAT: dat.clothesSize5,
+      SNEAKERS: dat.clothesSize6,
+      EXERCISE_SHOES: dat.clothesSize7,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    }
+  ];
+
+  const other_info = [
+    {
+      PERSONAL_ID: personalId,
+      JOB_BEFORE_ENTRY: dat.occupation,
+      JOB_LOCATION: dat.workplace,
+      INCOME: dat.income,
+      ENGLISH: dat.englishLanguageAbility,
+      BURMESE: dat.MyanmarLanguageAbility,
+      KAREN: dat.karanLanguageAbility,
+      LOCAL: dat.other_language,
+      PROFESSIONAL: dat.jobAbility,
+      MUSIC_TALENT: dat.MusicAbility,
+      SPORTS_TALENT: dat.SportAbility,
+      DRIVER: dat.DriverAbility,
+      DRIVING_LICENSE: dat.DriverLicense,
+      REASON: dat.reasonForEnlistment,
+      REASON_ENTRY: dat.reasonForEnlistment,
+      // LAT_HOME:dat.,
+      // LONG_HOME:dat.,
+      LAWSUIT: dat.arrested,
+      DATE_LAWSUIT: dat.dateArrested,
+      RESULT_LAWSUIT: dat.resultArrested,
+      OTHER: dat.note,
+      CREATE_USER: dat.create_user,
+      MODIFY_USER: dat.create_user,
+      CREATE_DATE: new Date().toISOString(),
+      MODIFY_DATE: new Date().toISOString(),
+    }
+  ]
+
+  
+  try {
+    // const {rows} = await pool.query(query);
+    console.log(personal_info);
+    console.log(rows);
+    if (rows) {
+      return true;
+    }else{
+      return true;
+    }
+  } catch (error) {
+    return error;
+  }
+};
+
+module.exports = { registerSoldier, submitSoldier, updateSoldier };

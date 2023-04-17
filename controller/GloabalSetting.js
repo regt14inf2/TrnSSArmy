@@ -11,7 +11,7 @@ exports.search= (req, res, next) => {
     let result = globalSettings.searchsg(req.body);
     result.then((result) => {
       if (typeof result == "object") {
-        res.status(201).json({
+        res.status(200).json({
           status: "success",
           data: result,
         });
